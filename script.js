@@ -46,7 +46,39 @@ F - заменяет d, так как мы присвоили элемент d �
 Если ID Google Analytics соответствует номеру “UA-49112570-1” и номер телефона Австралии на сайте соответствует “+61 2 6188 8118” то при клике на этот номер телефона изменить номер телефона австралии на “+06-1111-1111” а также в куку с именем “ScrollTracking” записать текущую глубину промотки скролла страницы в процентах.
 */
 
+window.addEventListener("load", () => {
+  const DEFAULT_GOOGLE_ID = "UA-49112570-1";
+  const DEFAULT_AU_NUMBER = "+61 2 6188 8118";
+  const NUMBER_TO_REPLACE = "+06-1111-1111";
+  const CURRENT_GOOGLE_ID_NODE = document.getElementById("google-analytics-id");
+  const PHONE_NUMBER_NODE = document.getElementById("phone-number");
 
+  PHONE_NUMBER_NODE.addEventListener("click", handlerNumberClick);
 
+  function handlerNumberClick(e) {
+    const targetPhoneNumber = e.target.textContent;
+    const googleId = CURRENT_GOOGLE_ID_NODE.dataset.id;
+    const isNeedToReplaceNumber =
+      targetPhoneNumber === DEFAULT_AU_NUMBER && googleId === DEFAULT_GOOGLE_ID;
 
+    if (isNeedToReplaceNumber) {
+      PHONE_NUMBER_NODE.textContent = NUMBER_TO_REPLACE;
 
+      updateScrollTrackingCookie();
+    }
+  }
+
+  function updateScrollTrackingCookie() {
+    const onePercentWindowHeight = window.innerHeight * 0.1;
+    const scrollY = window.scrollY;
+    const scrollDepth = (scrollY / onePercentWindowHeight).toFixed(0);
+
+    document.cookie = `scrollTracking=${scrollDepth}`;
+  }
+
+  window.addEventListener("unload", unsubscribe);
+
+  function unsubscribe() {
+    PHONE_NUMBER_NODE.removeEventListener("click", handlerNumberClick);
+  }
+});
